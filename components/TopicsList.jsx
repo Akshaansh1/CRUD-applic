@@ -1,11 +1,10 @@
-
 import Link from "next/link";
 import RemoveBtn from "./RemoveBtn";
 import { HiPencilAlt } from "react-icons/hi";
 
 const getTopics = async () => {
   try {
-    const res = await fetch("http://localhost:3000/api/topics", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/topics`, {
       cache: "no-store",
     });
 
@@ -16,12 +15,16 @@ const getTopics = async () => {
     return res.json();
   } catch (error) {
     console.log("Error loading topics: ", error);
+    return { topics: [] }; // Return an empty array to avoid undefined issues
   }
 };
 
-export default async function TopicsList() {
-  const { topics } = await getTopics();
+export async function getServerSideProps() {
+  const data = await getTopics();
+  return { props: { topics: data.topics || [] } };
+}
 
+export default function TopicsList({ topics }) {
   return (
     <>
       {topics.map((t) => (
